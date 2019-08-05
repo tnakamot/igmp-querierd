@@ -18,59 +18,151 @@
 # along with QuerierD.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import socket
+import socket, fcntl
 import time
 import struct
 import threading
 import syslog
-from .packets import IPv4Packet, IGMPv2Packet
+from .packets import IPv4Packet, IGMPv2Packet, IGMPv3MembershipQuery, IGMPv3Report
 
-version = '0.1'
-__all__ = ['Querier']
 
-all_routers = '224.0.0.1'
-mdns_group = '224.0.0.251'
+SIOCGIFADDR    = 0x8915
+version        = '0.1'
+__all__        = ['Querier']
+query_group    = '224.0.0.1'
+leave_group    = '224.0.0.2'
+report_group   = '224.0.0.22' # used by v3 reports only
 
 
 class Querier:
     """
     Sends an IGMP query packet at a specified time interval (in seconds).
     """
-    def __init__(self, source_address, interval):
+    def __init__(self, ifname, interval, msg_type, group, ttl):
         if os.getuid() != 0:
             raise RuntimeError('You must be root to create a Querier.')
-        self.source_address = source_address
-        self.interval = interval
+        self.interval       = interval
+        self.group          = group
+        self.ttl            = ttl
+        self.msg_type       = msg_type
         self.socket = sock = socket.socket(socket.AF_INET,
                                            socket.SOCK_RAW,
                                            socket.IPPROTO_RAW)
         time.sleep(1)  # Can't set options too soon (???)
         sock.settimeout(5)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+
+        # Get the IP address of the chosen interface
+        ifr = fcntl.ioctl(sock.fileno(), SIOCGIFADDR,
+                    struct.pack('256s', ifname.encode()))
+        self.source_address = source_address = socket.inet_ntoa(ifr[20:24])
+
+        # Bind
         sock.bind((source_address, 0))
-        self.build_query_packet()
+
+        # Build IGMP packet
+        if (msg_type == "v1_query"):
+            self.build_v1_query_packet()
+        elif (msg_type == "v2_query"):
+            self.build_v2_query_packet()
+        elif (msg_type == "v3_query"):
+            self.build_v3_query_packet()
+        elif (msg_type == "v2_report"):
+            self.build_v2_report()
+        else:
+            raise ValueError("IGMP message type not supported")
+
         self.listener = None
         self.elected = True
         self.stop = threading.Event()
         syslog.openlog('querierd')
 
-    def build_query_packet(self):
+    def build_v1_query_packet(self):
         igmp = IGMPv2Packet()
         igmp.type = 'query'
-        #max_response_time should be 0 for a v1 query
+        # NOTE: max_response_time should be 0 for a v1 query
         #igmp.max_response_time = 100
 
         self.packet = ip = IPv4Packet()
+
+        # Group-specific query
+        if (self.group is not None):
+            igmp.group = self.group
+            self.dst   = self.group
+            ip.dst     = self.group
+        else:
+            self.dst   = query_group
+            ip.dst     = query_group
+
         ip.protocol = socket.IPPROTO_IGMP
-        ip.ttl = 1
-        ip.src = self.source_address
-        ip.dst = all_routers
-        ip.data = igmp
+        ip.ttl      = self.ttl
+        ip.src      = self.source_address
+        ip.data     = igmp
+
+    def build_v2_query_packet(self):
+        igmp = IGMPv2Packet()
+        igmp.type = 'query'
+        igmp.max_response_time = 100
+        # NOTE: max response time will distinguish this query from v1 (it will
+        # be interpreted as v2)
+
+        self.packet = ip = IPv4Packet()
+
+        # Group-specific query
+        if (self.group is not None):
+            igmp.group = self.group
+            self.dst   = self.group
+            ip.dst     = self.group
+        else:
+            self.dst   = query_group
+            ip.dst     = query_group
+
+        ip.protocol = socket.IPPROTO_IGMP
+        ip.ttl      = self.ttl
+        ip.src      = self.source_address
+        ip.data     = igmp
+
+    def build_v3_query_packet(self):
+        igmp = IGMPv3MembershipQuery()
+        igmp.type = 'query'
+        #igmp.max_response_time = 100
+
+        self.packet = ip = IPv4Packet()
+
+        # Group-specific query
+        if (self.group is not None):
+            igmp.group = self.group
+            self.dst   = self.group
+            ip.dst     = self.group
+        else:
+            self.dst = query_group
+            ip.dst   = query_group
+
+
+        ip.protocol = socket.IPPROTO_IGMP
+        ip.ttl      = self.ttl
+        ip.src      = self.source_address
+        ip.data     = igmp
+
+    def build_v2_report(self):
+        assert(self.group is not None), "Group address undefined for v2_report"
+        igmp = IGMPv2Packet()
+        igmp.type = 'v2_report'
+        igmp.group = self.group
+        #igmp.max_response_time = 100
+
+        self.packet = ip = IPv4Packet()
+        self.dst    = report_group
+        ip.protocol = socket.IPPROTO_IGMP
+        ip.ttl      = self.ttl
+        ip.src      = self.source_address
+        ip.dst      = report_group
+        ip.data     = igmp
 
     def run(self):
         syslog.syslog('Querier starting. %s' % self.source_address)
         wait = 0.0
-        timeout = 0.5
+        timeout = 0.1
         self.listener = QueryListener(self.source_address)
 
         while True:
@@ -86,7 +178,8 @@ class Querier:
 
             elapsed = self.listener.elapsed()
             if self.elected:
-                self.socket.sendto(str(self.packet), (all_routers, 0))
+                print("Send %s" %(self.msg_type))
+                self.socket.sendto(str(self.packet), (self.dst, 0))
                 if elapsed < self.interval:
                     self.elected = False
                     syslog.syslog('Lost querier election. Pausing. %s'
