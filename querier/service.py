@@ -46,23 +46,28 @@ def main():
     parser = argparse.ArgumentParser(description='Querierd queries the multicast group in a certain interval to prevent IGMP snooping')
 
     parser.add_argument('-i', '--interface',
-                        help='Net interface through which to send IGMP packets',
-                        required=True)
+                        help='Net interface through which to send IGMP packets \
+                        (required)', required=True)
 
     parser.add_argument('-t', '--type', choices=['v1_query', 'v2_query',
                                                  'v3_query', 'v2_report'],
-                        help='Target IGMP message type to transmit')
+                        default='v3_query',
+                        help='Target IGMP message type to transmit \
+                        (default: v3_query)')
 
     parser.add_argument('--interval', type=float,
-                        help='IGMP transmission interval', default=5.0)
+                        help='IGMP transmission interval (default: 5 secs)',
+                        default=5.0)
 
     parser.add_argument('--ttl', type=int,
-                        help='IP packet TTL', default=1)
+                        help='IP packet TTL (default: 1)', default=1)
 
     parser.add_argument('-g', '--group', default=None,
-                        help='Target group for group-specific messages')
+                        help='Target group for group-specific messages \
+                        (default: None)')
 
-    parser.add_argument('-d', '--debug', help='Enable debug mode',
+    parser.add_argument('-d', '--debug',
+                        help='Enable debug mode (default: False)',
                         action='store_true')
 
     args = parser.parse_args()
