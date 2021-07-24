@@ -73,7 +73,7 @@ def main():
     args = parser.parse_args()
 
     if os.getuid() != 0:
-        print 'You must be root to run a querier.'
+        print('You must be root to run a querier.')
         sys.exit(1)
 
     debug     = args.debug
