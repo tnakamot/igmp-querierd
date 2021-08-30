@@ -102,7 +102,7 @@ class IGMPv2Packet(Packet):
 
     @property
     def group(self):
-        return self._dst
+        return self._group
     @group.setter
     def group(self, addr):
         self._group = struct.unpack("!I", socket.inet_aton(addr))[0]
@@ -150,7 +150,7 @@ class IGMPv3MembershipQuery(Packet):
     @property
     def n_src(self):
         return self._n_src
-    @type.setter
+    @n_src.setter
     def n_src(self, n_src):
         self._n_src = n_src
 
@@ -204,27 +204,27 @@ class IPv4Packet(Packet):
     @property
     def ttl(self):
         return self._ttl
-    @protocol.setter
+    @ttl.setter
     def ttl(self, ttl_value):
         self._ttl = ttl_value
 
     @property
     def ident(self):
         return self._id
-    @protocol.setter
+    @ident.setter
     def ident(self, id_value):
-        self._ttl = id_value
+        self._id = id_value
 
     @property
     def src(self):
         return self._src
-    @protocol.setter
+    @src.setter
     def src(self, addr):
         self._src = struct.unpack("!I", socket.inet_aton(addr))[0]
 
     @property
     def dst(self):
         return self._dst
-    @protocol.setter
+    @dst.setter
     def dst(self, addr):
         self._dst = struct.unpack("!I", socket.inet_aton(addr))[0]
