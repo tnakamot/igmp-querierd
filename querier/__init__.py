@@ -125,7 +125,7 @@ class Querier:
     def build_v3_query_packet(self):
         igmp = IGMPv3MembershipQuery()
         igmp.type = 'query'
-        #igmp.max_response_time = 100
+        igmp.max_response_time = 100
 
         self.packet = ip = IPv4Packet()
 
