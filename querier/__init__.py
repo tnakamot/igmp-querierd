@@ -179,7 +179,7 @@ class Querier:
             elapsed = self.listener.elapsed()
             if self.elected:
                 print("Send %s" %(self.msg_type))
-                self.socket.sendto(str(self.packet), (self.dst, 0))
+                self.socket.sendto(self.packet.as_bytes(), (self.dst, 0))
                 if elapsed < self.interval:
                     self.elected = False
                     syslog.syslog('Lost querier election. Pausing. %s'
@@ -230,7 +230,7 @@ class QueryListener:
             except socket.timeout:
                 continue
 
-            if ord(data[20]) == 17:  # make sure we got a query packet
+            if data[20] == 17:  # make sure we got a query packet
                 if self._ip_as_int(address[0]) < self.address:
                     self.lock.acquire()
                     self._timestamp = time.time()

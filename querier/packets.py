@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuerierD.  If not, see <http://www.gnu.org/licenses/>.
 
-import struct, socket, time, sys
+import struct, socket, sys
 
 IGMP_type = {
     'query'    : 0x11,
@@ -38,14 +38,14 @@ class Packet(object):
     """
     Base class for internet packets.
     """
-    _data = ''
+    _data = b''
     def __init__(self):
         self.format = '!'+''.join([self.formats[f]
                                    for f in self.fields])
         self.length = self.hdr_length = struct.calcsize(self.format)
         self.length = LENGTH(self.length)
 
-    def __str__(self):
+    def as_bytes(self):
         self.compute_checksum()
         return self.header() + self._data
 
@@ -56,8 +56,8 @@ class Packet(object):
     def compute_checksum(self):
         self.checksum = 0
         values = [getattr(self, field) for field in self.fields]
-        bytes = struct.pack(self.format, *values)
-        shorts = struct.unpack('!%dH'%(self.hdr_length/2), bytes)
+        packed_bytes = struct.pack(self.format, *values)
+        shorts = struct.unpack('!%dH'%(self.hdr_length/2), packed_bytes)
         S = sum(shorts)
         S = ((S >> 16) + (S & 0xffff))
         S += (S >> 16)
@@ -68,7 +68,12 @@ class Packet(object):
         return self._data
     @data.setter
     def data(self, data):
-        self._data = str(data)
+        if isinstance(data, Packet):
+            self._data = data.as_bytes()
+        elif isinstance(data, bytes):
+            self._data = data
+        else:
+            raise ValueError("Invalid type for setter: %s" % (data))
         self.length = LENGTH(self.hdr_length + len(self._data))
 
 class IGMPv2Packet(Packet):
