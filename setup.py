@@ -2,12 +2,11 @@
 
 from setuptools import setup
 
-setup(name='querierd',
-      version=0.2,
+setup(name='igmpquerier',
+      version=0.3,
       description='IGMP querier service',
-      author='Marc Culler',
-      author_email='marc.culler@gmail.com',
-      url='http://www.math.uic.edu/~t3m',
-      packages=['querier'],
+      author='Marc Culler, Balázs Póka',
+      author_email='marc.culler@gmail.com, p.balazs@gmail.com',
+      packages=['igmpquerier'],
       install_requires=['netifaces>0.7']
      )
