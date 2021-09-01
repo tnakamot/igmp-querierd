@@ -88,11 +88,9 @@ def main():
     try:
         while True:
             if interface not in processes:
-                print('adding new querier: %s' % interface)
-                processes[interface] = QuerierInstance(interface, interval,
-                                                       msg_type, group, ttl)
-                removed = []
-                time.sleep(wait)
+                print('adding new querier: {}'.format(interface))
+                processes[interface] = QuerierInstance(interface, interval, msg_type, group, ttl)
+            time.sleep(wait)
     except KeyboardInterrupt:
         pass
 
