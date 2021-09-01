@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with QuerierD.  If not, see <http://www.gnu.org/licenses/>.
 
-from . import Querier
+from igmpquerier import Querier
 import threading
 import time
 import sys
@@ -43,7 +43,7 @@ class QuerierInstance:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Querierd queries the multicast group in a certain interval to prevent IGMP snooping')
+    parser = argparse.ArgumentParser(description='Querierd queries the multicast group in a certain interval to support IGMP snooping')
 
     parser.add_argument('-i', '--interface',
                         help='Net interface through which to send IGMP packets \

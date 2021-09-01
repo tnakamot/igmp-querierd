@@ -143,7 +143,7 @@ class IGMPv3MembershipQuery(Packet):
         return socket.inet_ntoa(self._dst)
     @group.setter
     def group(self, addr):
-        print("Set group to %s" %(addr))
+        print("Set group to {}".format(addr))
         self._group = struct.unpack("!I", socket.inet_aton(addr))[0]
 
     # Number of sources
@@ -172,7 +172,7 @@ class IGMPv3Report(Packet):
         return socket.inet_ntoa(self._group_record)
     @group.setter
     def group(self, addr):
-        print("Set group to %s" %(addr))
+        print("Set group to {}".format(addr))
         self._group_record = struct.unpack("!I", socket.inet_aton(addr))[0]
 
 

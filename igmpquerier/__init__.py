@@ -22,8 +22,7 @@ import socket, fcntl
 import time
 import struct
 import threading
-import syslog
-from .packets import IPv4Packet, IGMPv2Packet, IGMPv3MembershipQuery, IGMPv3Report
+from igmpquerier.packets import IPv4Packet, IGMPv2Packet, IGMPv3MembershipQuery, IGMPv3Report
 
 
 SIOCGIFADDR    = 0x8915
@@ -75,7 +74,6 @@ class Querier:
         self.listener = None
         self.elected = True
         self.stop = threading.Event()
-        syslog.openlog('querierd')
 
     def build_v1_query_packet(self):
         igmp = IGMPv2Packet()
@@ -160,7 +158,7 @@ class Querier:
         ip.data     = igmp
 
     def run(self):
-        syslog.syslog('Querier starting. %s' % self.source_address)
+        print('Querier starting on {}'.format(self.source_address))
         wait = 0.0
         timeout = 0.1
         self.listener = QueryListener(self.source_address)
@@ -178,26 +176,22 @@ class Querier:
 
             elapsed = self.listener.elapsed()
             if self.elected:
-                print("Send %s" %(self.msg_type))
+                print('Send {} on {}'.format(self.msg_type, self.source_address))
                 self.socket.sendto(self.packet.as_bytes(), (self.dst, 0))
                 if elapsed < self.interval:
                     self.elected = False
-                    syslog.syslog('Lost querier election. Pausing. %s'
-                                  % self.source_address)
+                    print('Lost querier election, pausing on {}'.format(self.source_address))
             else:
                 if (elapsed > 2 * self.interval):
-                    syslog.syslog('Won querier election. Resuming. %s'
-                                  % self.source_address)
+                    print('Won querier election, resuming on {}'.format(self.source_address))
                     self.elected = True
             if not self.listener.thread.is_alive():
-                syslog.syslog('Listener thread died.  Quitting. %s'
-                              % self.source_address)
+                print('Listener thread died, quitting on {}'.format(self.source_address))
                 break
 
         self.listener.stop.set()
         self.socket.close()
-        syslog.syslog('Received SIGTERM.  Quitting. %s'
-                      % self.source_address)
+        print('Querier quitting on {}'.format(self.source_address))
 
 
 class QueryListener:
