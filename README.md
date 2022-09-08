@@ -40,6 +40,10 @@ Replace `eth0` by the appropriate interface on your computer. Wait a few seconds
 
     sudo systemctl status igmp-querierd@eth0.service
 
+You can see the output log of the daemon withe the command below:
+
+    journalctl -f -u igmp-querierd@eth0.service
+
 After you have approved that everything works fine its time to enable the service to be started at boot:
 
     sudo systemctl enable igmp-querierd@eth0.service
