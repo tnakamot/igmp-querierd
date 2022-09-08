@@ -115,46 +115,28 @@ that avahi and bonjour do not work on your home network.
 
 The good news is that this problem is easy to fix.  All we need to do
 is run a little daemon on one device which sends an IGMP query to the
-multicast broadcast address at regular intervals.  QuerierD provides
+multicast broadcast address at regular intervals.  igmp-querierd provides
 such a daemon.  Once you start it up on one or more of your computers
 your devices will stop disappearing.
 
-The querierd daemon will participate in the querier election process,
-so you can run querierd daemons on several devices on your network,
-some of which may not be running all the time.  The querierd daemons
-will cooperate with any routers or other querierd daemons, so only
+The igmp-querierd daemon will participate in the querier election process,
+so you can run igmp-querierd daemons on several devices on your network,
+some of which may not be running all the time.  The igmp-querierd daemons
+will cooperate with any routers or other igmp-querierd daemons, so only
 one of them will provide the querier service at a time.
 
-NOTE: A C implementation with similar functionality is available
-from Daniel Lorch: [igmp-querier](https://github.com/dlorch/igmp-querier)
+## Installation
 
-## Easy install
-To simplify the installation a Makefile is provided with QuerierD. To
-install QuerierD run following command:
+There are two steps to install igmp-querierd.  First you need to
+install a python package named `igmpquerier`.
 
-    sudo make install
+If you have `pip` for Python3 installed, then the command
 
-To uninstall QuerierD run following command:
+    sudo pip install .
 
-    sudo make uninstall
+should install the `igmpquerier` package.
 
-## Manual Installation of QuerierD
-
-There are two steps to installing QuerierD.  First you need to
-install a python package named querier, as well as the package
-netifaces, which QuerierD uses.
-
-If you have python setuptools installed, then the command
-
-    sudo python setup.py install
-
-should install both packages, as needed.  (Note, however, that
-installing netifaces may require a C compiler.) If you don't
-have setuptools you will need to install netifaces separately.
-Step 1 may or may not require superuser permissions, depending
-on how your python installation is configured.
-
-Step 2 is to set up the querierd as a system service.  This
+Step 2 is to set up the igmp-querierd as a system service.  This
 involves copying a couple of files into your system directories,
 and must be done as root.  The details depend on your operating
 system.  Here are the details:
@@ -185,13 +167,17 @@ After you have approved that everything works fine its time to enable the servic
 
 After starting the daemon by
 
-    $ sudo python -m querier.service
+    $ sudo python -m igmpquerier.service -i eth0
 
 you can run tcpdump and watch the IGMP traffic:
 
     $ sudo tcpdump -nv -ieth0 igmp
 
 (replace eth0 by the appropriate interface on your computer).
+
+Run the service with "-h" option to see more options
+
+    $ python -m igmpquerier.service -h
 
 Also, you can run avahi-browse to check that all of your devices and
 services are visible:
