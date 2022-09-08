@@ -33,7 +33,6 @@ class QuerierInstance:
         self.querier = Querier(interface, interval, msg_type, group, ttl)
         self.thread = thread = threading.Thread(target=self.run)
         thread.daemon = True
-        thread.start()
 
     def run(self):
         self.querier.run()
@@ -41,6 +40,11 @@ class QuerierInstance:
     def stop(self):
         self.querier.stop.set()
 
+    def start(self):
+        self.thread.start()
+
+    def join(self):
+        self.thread.join()
 
 def main():
     parser = argparse.ArgumentParser(description='This program periodically sends IGMP queries through the specified network interface.')
@@ -66,45 +70,24 @@ def main():
                         help='Target group for group-specific messages \
                         (default: None)')
 
-    parser.add_argument('-d', '--debug',
-                        help='Enable debug mode (default: False)',
-                        action='store_true')
-
     args = parser.parse_args()
 
     if os.getuid() != 0:
         print('You must be root to run a querier.')
         sys.exit(1)
 
-    debug     = args.debug
     interval  = args.interval
     interface = args.interface
     msg_type  = args.type
     group     = args.group
     ttl       = args.ttl
-    wait = 5.0  # network interface checking interval
-    processes = {}
 
     try:
-        while True:
-            if interface not in processes:
-                print('adding new querier: {}'.format(interface))
-                processes[interface] = QuerierInstance(interface, interval, msg_type, group, ttl)
-            time.sleep(wait)
+        querier   = QuerierInstance(interface, interval, msg_type, group, ttl)
+        querier.start()
+        querier.join()
     except KeyboardInterrupt:
         pass
-
-    if debug:
-        print("stopping threads")
-    for proc in processes:
-        processes[proc].stop()
-
-    # wait for all threads to terminate
-    while threading.active_count() > 1:  # one thread for every process is left
-        time.sleep(0.1)
-
-    if debug:
-        print("threads stopped")
 
     sys.exit(0)
 
