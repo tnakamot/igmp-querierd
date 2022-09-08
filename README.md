@@ -13,7 +13,7 @@ There are two steps to install igmp-querierd.
 First you need to install a python package named `igmpquerier`.
 If you have `pip` for Python3 installed, then the command
 
-    sudo pip install .
+    $ sudo pip install .
 
 should install the `igmpquerier` python package.
 
@@ -25,7 +25,7 @@ Step 2 is to set up igmp-querierd as a system service.  This involves copying a 
 
 Copy the service file to the systemd directory:
 
-    sudo cp etc/systemd/system/igmp-querierd@.service /etc/systemd/system
+    $ sudo cp etc/systemd/system/igmp-querierd@.service /etc/systemd/system
 
  * Don't forget to check the permissions!
  * To change the IGMP broadcast interval, change `--interval <interval>` in the `igmp-querierd@.service` file.
@@ -33,39 +33,39 @@ Copy the service file to the systemd directory:
 
 The systemd service is now ready to be configured:
 
-    sudo systemctl daemon-reload
-    sudo systemctl start igmp-querierd@eth0.service
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl start igmp-querierd@eth0.service
 
 Replace `eth0` by the appropriate interface on your computer. Wait a few seconds and check the status of the service:
 
-    sudo systemctl status igmp-querierd@eth0.service
+    $ sudo systemctl status igmp-querierd@eth0.service
 
 You can see the output log of the daemon withe the command below:
 
-    journalctl -f -u igmp-querierd@eth0.service
+    $ journalctl -f -u igmp-querierd@eth0.service
 
 After you have approved that everything works fine its time to enable the service to be started at boot:
 
-    sudo systemctl enable igmp-querierd@eth0.service
+    $ sudo systemctl enable igmp-querierd@eth0.service
 
 
 You may run igmp-querierd for multiple network interfaces:
 
-    sudo systemctl start igmp-querierd@eth1.service
-    sudo systemctl start igmp-querierd@eth2.service
-    sudo systemctl enable igmp-querierd@eth1.service
-    sudo systemctl enable igmp-querierd@eth2.service
+    $ sudo systemctl start igmp-querierd@eth1.service
+    $ sudo systemctl start igmp-querierd@eth2.service
+    $ sudo systemctl enable igmp-querierd@eth1.service
+    $ sudo systemctl enable igmp-querierd@eth2.service
 
 ## Uninstall
 
 For clean uninstallation, first make sure that the systemd service is stopped and disabled:
 
-    sudo systemctl stop igmp-querierd@eth0.service
-    sudo systemctl disable igmp-querierd@eth0.service
+    $ sudo systemctl stop igmp-querierd@eth0.service
+    $ sudo systemctl disable igmp-querierd@eth0.service
 
 Run the commands above for all network interfaces. And then, remove /etc/systemd/system/igmp-querierd@.service. After that, run command below to uninstall the python package from your system:
 
-    sudo pip uninstall igmp-querier
+    $ sudo pip uninstall igmp-querier
 
 ## Testing
 
