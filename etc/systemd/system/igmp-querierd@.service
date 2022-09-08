@@ -9,6 +9,7 @@ ExecStart=/usr/bin/python3 -u -m igmpquerier.service -i %i --interval 60
 Restart=always
 StandardOutput=journal
 StandardError=journal
+KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
