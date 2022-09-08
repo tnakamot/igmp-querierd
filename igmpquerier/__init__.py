@@ -158,7 +158,7 @@ class Querier:
         ip.data     = igmp
 
     def run(self):
-        print('Querier starting on {}'.format(self.source_address))
+        print('IGMP Querier starting on {}'.format(self.source_address))
         self.listener = QueryListener(self.source_address)
 
         while True:
@@ -184,7 +184,7 @@ class Querier:
         
         self.listener.stop.set()
         self.socket.close()
-        print('Querier quitting on {}'.format(self.source_address))
+        print('IGMP Querier quitting on {}'.format(self.source_address))
 
 
 class QueryListener:

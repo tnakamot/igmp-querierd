@@ -82,12 +82,13 @@ def main():
     group     = args.group
     ttl       = args.ttl
 
+    querier = QuerierInstance(interface, interval, msg_type, group, ttl)
     try:
-        querier   = QuerierInstance(interface, interval, msg_type, group, ttl)
         querier.start()
         querier.join()
     except KeyboardInterrupt:
-        pass
+        querier.stop()
+        querier.join()
 
     sys.exit(0)
 
