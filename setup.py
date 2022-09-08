@@ -2,10 +2,15 @@
 
 from setuptools import setup
 
-setup(name='igmpquerier',
-      version='0.3.1',
-      description='IGMP querier service',
-      author='Marc Culler, Balázs Póka',
-      author_email='marc.culler@gmail.com, p.balazs@gmail.com',
-      packages=['igmpquerier'],
-     )
+setup(
+    name         = 'igmp-querier',
+    version      = '0.3.1',
+    description  = 'IGMP querier service',
+    author       = 'Marc Culler, Balázs Póka, Takashi Nakamoto',
+    author_email = 'marc.culler@gmail.com, p.balazs@gmail.com, takashi.nakamoto@nao.ac.jp',
+    packages     = ['igmpquerier'],
+    url          = 'https://github.com/tnakamot/querierd',
+    license      = 'GPLv2',
+    keywords     = ['IGMP', 'Querier', 'snooping', 'multicast'],
+    classifiers  = ['Topic :: System :: Networking'],
+)
