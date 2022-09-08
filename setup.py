@@ -8,5 +8,4 @@ setup(name='igmpquerier',
       author='Marc Culler, Balázs Póka',
       author_email='marc.culler@gmail.com, p.balazs@gmail.com',
       packages=['igmpquerier'],
-      install_requires=['netifaces>0.7']
      )
