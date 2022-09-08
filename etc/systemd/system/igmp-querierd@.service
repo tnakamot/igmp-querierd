@@ -5,8 +5,10 @@ Description=IGMP Querier daemon
 After=syslog.target network.target
 
 [Service]
-ExecStart=/usr/bin/python3 -m igmpquerier.service -i %i --interval 60
+ExecStart=/usr/bin/python3 -u -m igmpquerier.service -i %i --interval 60
 Restart=always
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
