@@ -1,6 +1,71 @@
-# Why avahi and bonjour don't work on your home network
+# igmp-querierd
 
-## and how to fix them
+igmp-querierd is a Python implementation of [IGMP Querier](https://en.wikipedia.org/wiki/IGMP_snooping#IGMP_querier). If you network has a L2 switch that is capable of [IGMP snooping](https://en.wikipedia.org/wiki/IGMP_snooping), but if the network does not have any L3 router or network device that can acts as IGMP Querier, the IGMP snooping function may not work as expected. In the worst case, some multicast packets may not be delivered properly. In order to establish multicast communication properly, you may add a L2 switch or a L3 router with IGMP Querier capability to your network or run this igmp-querier in one of Linux or Unix-like machines in the same network. In principle, it keeps sending IGMP queries to the network.
+
+You may wan to read ["Why avahi and bonjour don't work on your home network"](#why-avahi-and-bonjour-dont-work-on-your-home-network) to understand the background and how multicasting works, but please note that its usage is not limited to avahi or bonjour. igmp-querierd is also useful any other protocols that use multicast.
+
+## Installation
+
+There are two steps to install igmp-querierd.
+
+### Step 1: Installing python package
+
+First you need to install a python package named `igmpquerier`.
+
+If you have `pip` for Python3 installed, then the command
+
+    sudo pip install .
+
+should install the `igmpquerier` python package.
+
+### Step 2: Set up as a system service
+
+(Note: instructions below assume that your have a modern Linux distribution with systemd)
+
+Step 2 is to set up the igmp-querierd as a system service.  This involves copying a couple of files into your system directories, and must be done as root.  The details depend on your operating
+system. Here are the details:
+
+Copy the service file to the systemd directory:
+
+    sudo cp lib/systemd/system/querierd.service /lib/systemd/system
+
+ * Don't forget to check the permissions!
+ * To change the IGMP broadcast interval add `-i <interval>` to the `querierd.service` file.
+ * You may find more options by running `python -m igmpquerier.service -h`.
+
+The Systemd service is now ready to be configured:
+
+    sudo systemctl daemon-reload
+    sudo systemctl start querierd.service
+
+Wait a few seconds and check the status of the service:
+
+    sudo systemctl status querierd.service
+
+After you have approved that everything works fine its time to enable the service to be started at boot:
+
+    sudo systemctl enable querierd.service
+
+## Testing
+
+If you want to test igmp-querierd before installing it to your system, you may run
+
+    $ sudo python -m igmpquerier.service -i eth0
+
+in the root directory of this git repository. Then, run the command below to watch the IGMP traffice:
+
+    $ sudo tcpdump -nv -ieth0 igmp
+
+(replace eth0 by the appropriate interface on your computer).
+
+Also, you can run avahi-browse to check that all of your devices and
+services are visible:
+
+    $ avahi-browse -at
+
+## Why avahi and bonjour don't work on your home network
+
+### and how to fix them
 
 An internet search turns up lots and lots of reports of problems with
 avahi and bonjour of the following general nature: "when I first start
@@ -21,7 +86,7 @@ say it is not their fault and refer the plaintiff to
 
 Well, great.  But what can be done about it?
 
-## What is going on?
+### What is going on?
 
 To explain the problem we need a little background on IP multicasting
 and IGMP snooping.
@@ -91,7 +156,7 @@ does not hear any subsequent IGMP join requests from your device.  So,
 after a while, the switch stops forwarding any mDNS packets, and the
 device "disappears".
 
-## What can be done?
+### What can be done?
 
 To understand how to deal with this we need to discuss one more
 feature of the IGMP protocol and IGMP snooping.  In order for your
@@ -125,61 +190,3 @@ some of which may not be running all the time.  The igmp-querierd daemons
 will cooperate with any routers or other igmp-querierd daemons, so only
 one of them will provide the querier service at a time.
 
-## Installation
-
-There are two steps to install igmp-querierd.  First you need to
-install a python package named `igmpquerier`.
-
-If you have `pip` for Python3 installed, then the command
-
-    sudo pip install .
-
-should install the `igmpquerier` package.
-
-Step 2 is to set up the igmp-querierd as a system service.  This
-involves copying a couple of files into your system directories,
-and must be done as root.  The details depend on your operating
-system.  Here are the details:
-
-### Linux systems that use systemd (e.g. recent Ubuntu systems after 14.10):
-
-Copy the service file to the systemd directory:
-
-    sudo cp lib/systemd/system/querierd.service /lib/systemd/system
-
- * Don't forget to check the permissions!
- * To change the IGMP broadcast interval add `-i <interval>` to the `querierd.service` file.
-
-The Systemd service is now ready to be configured:
-
-    sudo systemctl daemon-reload
-    sudo systemctl start querierd.service
-
-Wait a few seconds and check the status of the service:
-
-    sudo systemctl status querierd.service
-
-After you have approved that everything works fine its time to enable the service to be started at boot:
-
-    sudo systemctl enable querierd.service
-
-## Testing
-
-After starting the daemon by
-
-    $ sudo python -m igmpquerier.service -i eth0
-
-you can run tcpdump and watch the IGMP traffic:
-
-    $ sudo tcpdump -nv -ieth0 igmp
-
-(replace eth0 by the appropriate interface on your computer).
-
-Run the service with "-h" option to see more options
-
-    $ python -m igmpquerier.service -h
-
-Also, you can run avahi-browse to check that all of your devices and
-services are visible:
-
-    $ avahi-browse -at
