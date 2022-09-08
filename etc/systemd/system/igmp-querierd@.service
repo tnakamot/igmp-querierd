@@ -1,0 +1,12 @@
+# igmp-querierd - IGMP querier for networks without a multicast router 
+
+[Unit]
+Description=IGMP Querier daemon
+After=syslog.target network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -m igmpquerier.service -i %i
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
