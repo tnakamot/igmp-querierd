@@ -159,20 +159,11 @@ class Querier:
 
     def run(self):
         print('Querier starting on {}'.format(self.source_address))
-        wait = 0.0
-        timeout = 0.1
         self.listener = QueryListener(self.source_address)
 
         while True:
             if self.stop.is_set():
                 break
-
-            time.sleep(timeout)
-            wait += timeout
-            if wait < self.interval:
-                continue
-            else:
-                wait = 0.0
 
             elapsed = self.listener.elapsed()
             if self.elected:
@@ -189,6 +180,8 @@ class Querier:
                 print('Listener thread died, quitting on {}'.format(self.source_address))
                 break
 
+            self.stop.wait(timeout=self.interval)
+        
         self.listener.stop.set()
         self.socket.close()
         print('Querier quitting on {}'.format(self.source_address))
