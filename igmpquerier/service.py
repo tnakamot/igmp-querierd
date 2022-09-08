@@ -43,10 +43,10 @@ class QuerierInstance:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Querierd queries the multicast group in a certain interval to support IGMP snooping')
+    parser = argparse.ArgumentParser(description='This program periodically sends IGMP queries through the specified network interface.')
 
     parser.add_argument('-i', '--interface',
-                        help='Net interface through which to send IGMP packets \
+                        help='Network interface through which to send IGMP packets \
                         (required)', required=True)
 
     parser.add_argument('-t', '--type', choices=['v1_query', 'v2_query',
@@ -56,7 +56,7 @@ def main():
                         (default: v3_query)')
 
     parser.add_argument('--interval', type=float,
-                        help='IGMP transmission interval in seconds (default: 5 secs)',
+                        help='IGMP transmission interval in seconds (default: 5 seconds)',
                         default=5.0)
 
     parser.add_argument('--ttl', type=int,
