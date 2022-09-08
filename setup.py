@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name         = 'igmp-querier',
-    version      = '0.3.1',
+    version      = '0.4.0',
     description  = 'IGMP querier service',
     author       = 'Marc Culler, Balázs Póka, Takashi Nakamoto',
     author_email = 'marc.culler@gmail.com, p.balazs@gmail.com, takashi.nakamoto@nao.ac.jp',
