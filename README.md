@@ -25,7 +25,7 @@ Step 2 is to set up igmp-querierd as a system service.  This involves copying a 
 
 Copy the service file to the systemd directory:
 
-    sudo cp lib/systemd/system/querierd.service /lib/systemd/system
+    sudo cp lib/systemd/system/querierd.service /etc/systemd/system
 
  * Don't forget to check the permissions!
  * To change the IGMP broadcast interval add `-i <interval>` to the `querierd.service` file.
@@ -43,6 +43,17 @@ Wait a few seconds and check the status of the service:
 After you have approved that everything works fine its time to enable the service to be started at boot:
 
     sudo systemctl enable querierd.service
+
+## Uninstall
+
+For clean uninstallation, first make sure that the systemd service is stopped and disabled:
+
+    sudo systemctl stop querierd.service
+    sudo systemctl disable querierd.service
+
+And then, remove /etc/systemd/system/querierd.service. After that, run command below to uninstall the python package from your system:
+
+    sudo pip uninstall igmp-querier
 
 ## Testing
 
