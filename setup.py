@@ -9,7 +9,7 @@ setup(
     author       = 'Marc Culler, Balázs Póka, Takashi Nakamoto',
     author_email = 'marc.culler@gmail.com, p.balazs@gmail.com, takashi.nakamoto@nao.ac.jp',
     packages     = ['igmpquerier'],
-    url          = 'https://github.com/tnakamot/querierd',
+    url          = 'https://github.com/tnakamot/igmp-querierd',
     license      = 'GPLv2',
     keywords     = ['IGMP', 'Querier', 'snooping', 'multicast'],
     classifiers  = ['Topic :: System :: Networking'],
