@@ -25,7 +25,7 @@ Step 2 is to set up igmp-querierd as a system service.  This involves copying a 
 
 Copy the service file to the systemd directory:
 
-    sudo cp lib/systemd/system/querierd.service /etc/systemd/system
+    sudo cp etc/systemd/system/querierd.service /etc/systemd/system
 
  * Don't forget to check the permissions!
  * To change the IGMP broadcast interval add `-i <interval>` to the `querierd.service` file.
