@@ -56,7 +56,7 @@ def main():
                         (default: v3_query)')
 
     parser.add_argument('--interval', type=float,
-                        help='IGMP transmission interval (default: 5 secs)',
+                        help='IGMP transmission interval in seconds (default: 5 secs)',
                         default=5.0)
 
     parser.add_argument('--ttl', type=int,
